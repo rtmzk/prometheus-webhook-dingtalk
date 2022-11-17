@@ -67,6 +67,8 @@ func (api *API) serveSend(w http.ResponseWriter, r *http.Request) {
 	httpClient := api.httpClient
 	api.mtx.RUnlock()
 
+	extendHeader := conf.ExtendHeader
+
 	targetName := chi.URLParam(r, "name")
 	logger := log.With(api.logger, "target", targetName)
 
@@ -92,7 +94,7 @@ func (api *API) serveSend(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	robotResp, err := notifier.SendNotification(notification, httpClient, &target)
+	robotResp, err := notifier.SendNotification(notification, httpClient, &target, extendHeader)
 	if err != nil {
 		level.Error(logger).Log("msg", "Failed to send notification", "err", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)

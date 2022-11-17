@@ -31,7 +31,7 @@ $(REACT_APP_NODE_MODULES_PATH): $(REACT_APP_PATH)/package.json $(REACT_APP_PATH)
 
 $(REACT_APP_OUTPUT_DIR): $(REACT_APP_NODE_MODULES_PATH) $(REACT_APP_SOURCE_FILES)
 	@echo ">> building React app"
-	@./scripts/build_react_app.sh
+	@$(shell  bash ./scripts/build_react_app.sh)
 
 .PHONY: build
 build: assets common-build

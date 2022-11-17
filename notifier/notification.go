@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/timonwong/prometheus-webhook-dingtalk/config"
@@ -88,7 +89,7 @@ func (r *DingNotificationBuilder) Build(m *models.WebhookMessage) (*models.DingT
 	return notification, nil
 }
 
-func SendNotification(notification *models.DingTalkNotification, httpClient *http.Client, target *config.Target) (*models.DingTalkNotificationResponse, error) {
+func SendNotification(notification *models.DingTalkNotification, httpClient *http.Client, target *config.Target, extendHeader []string) (*models.DingTalkNotificationResponse, error) {
 	targetURL := *target.URL
 	// Calculate signature when secret is provided
 	if target.Secret != "" {
@@ -115,6 +116,15 @@ func SendNotification(notification *models.DingTalkNotification, httpClient *htt
 		return nil, fmt.Errorf("error building DingTalk request: %w", err)
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
+	for _, header := range extendHeader {
+		key := strings.Split(header, "=")[0]
+		value := strings.Split(header, "=")[1]
+
+		if key == "" || value == "" {
+			continue
+		}
+		httpReq.Header.Set(key, value)
+	}
 
 	resp, err := httpClient.Do(httpReq)
 	if err != nil {
